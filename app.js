@@ -1,20 +1,4 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAY8ma-8Pd6r9i0Q1vEtkt4ozZN9kUj9W0",
-  authDomain: "shim-50b83.firebaseapp.com",
-  projectId: "shim-50b83",
-  storageBucket: "shim-50b83.firebasestorage.app",
-  messagingSenderId: "772097686009",
-  appId: "1:772097686009:web:92afd4017195273e5d6528",
-  measurementId: "G-XMQREP0PR3"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 const questions = [
     { q: "¿Cómo califica su confianza en poder lograr y mantener una erección?", opts: ["Muy baja", "Baja", "Moderada", "Alta", "Muy alta"], pts: },
     { q: "Cuando tuvo erecciones con estimulación sexual, ¿con qué frecuencia fueron lo suficientemente firmes para la penetración?", opts: ["Casi nunca", "Pocas veces", "A veces", "Muchas veces", "Casi siempre"], pts: },
@@ -27,31 +11,31 @@ let currentIdx = 0;
 let totalScore = 0;
 let userData = {};
 
-// Inicialización de eventos una vez que el DOM está listo
-document.addEventListener('DOMContentLoaded', () => {
+// Esta función se asegura de que el botón funcione apenas se cargue el DOM
+window.onload = function() {
     const btnStart = document.getElementById('btn-start');
-    if(btnStart) {
-        btnStart.onclick = () => {
-            userData.name = document.getElementById('name').value;
-            userData.age = document.getElementById('age').value;
-            userData.state = document.getElementById('state').value;
-            
-            if(!userData.name || !userData.age || !userData.state) {
-                alert("Andrés, faltan datos por llenar.");
-                return;
-            }
-            
-            document.getElementById('screen-register').style.display = 'none';
-            document.getElementById('screen-quiz').style.display = 'block';
-            renderQuestion();
-        };
-    }
-});
+    
+    btnStart.addEventListener('click', function() {
+        userData.name = document.getElementById('name').value;
+        userData.age = document.getElementById('age').value;
+        userData.state = document.getElementById('state').value;
+
+        if(!userData.name || !userData.age || !userData.state) {
+            alert("Por favor, llena todos los campos.");
+            return;
+        }
+
+        document.getElementById('screen-register').style.display = 'none';
+        document.getElementById('screen-quiz').style.display = 'block';
+        renderQuestion();
+    });
+};
 
 function renderQuestion() {
     const q = questions[currentIdx];
     document.getElementById('question-text').innerText = q.q;
-    document.getElementById('progress').style.width = `${((currentIdx+1)/5)*100}%`;
+    document.getElementById('progress').style.width = ((currentIdx + 1) / 5 * 100) + '%';
+    
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     
@@ -59,22 +43,22 @@ function renderQuestion() {
         const btn = document.createElement('button');
         btn.className = "opt-btn";
         btn.innerText = opt;
-        btn.onclick = () => handleAnswer(q.pts[i]);
+        btn.onclick = function() { handleAnswer(q.pts[i]); };
         container.appendChild(btn);
     });
 }
 
-async function handleAnswer(pts) {
+function handleAnswer(pts) {
     totalScore += pts;
     currentIdx++;
     if(currentIdx < questions.length) {
         renderQuestion();
     } else {
-        await finishQuiz();
+        showResults();
     }
 }
 
-async function finishQuiz() {
+function showResults() {
     let diag = "";
     if(totalScore <= 7) diag = "Disfunción Grave";
     else if(totalScore <= 11) diag = "Disfunción Moderada";
@@ -87,16 +71,16 @@ async function finishQuiz() {
     document.getElementById('result-score').innerText = totalScore;
     document.getElementById('result-diagnosis').innerText = diag;
 
-    try {
-        await addDoc(collection(db, "respuestas_shim"), {
+    // Guardar en Firebase usando la función expuesta
+    if(window.saveToFirebase) {
+        window.saveToFirebase({
             ...userData,
             score: totalScore,
-            diagnosis: diag,
-            timestamp: new Date()
+            diagnosis: diag
         });
-    } catch (e) { console.error("Error Firebase:", e); }
+    }
 
-    document.getElementById('btn-email-send').onclick = () => {
+    document.getElementById('btn-email-send').onclick = function() {
         const subject = `Resultado SHIM: ${userData.name}`;
         const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${diag}`;
         window.location.href = `mailto:cuestionarios@uroandres.com?subject=${subject}&body=${body}`;
