@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIM - Dr. Andrés González</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+</head>
+<body>
+    <div id="app" class="container">
+        <section id="screen-register">
+            <h1>Cuestionario SHIM</h1>
+            <p>Salud Sexual Masculina</p>
+            <div class="form-group">
+                <input type="text" id="name" placeholder="Nombre completo" required>
+                <input type="number" id="age" placeholder="Edad" required>
+                <input type="text" id="state" placeholder="Estado (ej. Nuevo León)" required>
+                <button onclick="startQuiz()">Comenzar</button>
+            </div>
+        </section>
+
+        <section id="screen-quiz" style="display:none;">
+            <div class="progress-bar"><div id="progress" style="width: 20%;"></div></div>
+            <h3 id="question-text"></h3>
+            <div id="options-container"></div>
+        </section>
+
+        <section id="screen-results" style="display:none;">
+            <h2>Tu Resultado</h2>
+            <div class="result-box">
+                <h1 id="result-score">0</h1>
+                <p id="result-diagnosis"></p>
+            </div>
+            <p class="disclaimer">Estos resultados han sido documentados para su revisión médica.</p>
+            <button class="btn-email" onclick="sendEmail()">Enviar resultados a Dr. Andrés</button>
+        </section>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

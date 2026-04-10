@@ -1,0 +1,11 @@
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+.container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+button:hover { opacity: 0.8; }
+.opt-btn { background: #e9ecef; margin: 5px 0; color: #333; }
+.opt-btn:hover { background: #3498db; color: white; }
+.progress-bar { background: #eee; height: 8px; border-radius: 4px; margin-bottom: 20px; }
+#progress { background: #3498db; height: 100%; border-radius: 4px; transition: 0.3s; }
+.result-box { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; }
+.btn-email { background: #27ae60; color: white; margin-top: 20px; }
