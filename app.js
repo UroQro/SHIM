@@ -27,16 +27,21 @@ let currentIdx = 0;
 let totalScore = 0;
 let userData = {};
 
-window.startQuiz = () => {
+// Arreglando el error del botón: Usamos EventListeners en lugar de onclick en el HTML
+document.getElementById('btn-start').addEventListener('click', () => {
     userData.name = document.getElementById('name').value;
     userData.age = document.getElementById('age').value;
     userData.state = document.getElementById('state').value;
-    if(!userData.name || !userData.age) return alert("Completa tus datos");
+    
+    if(!userData.name || !userData.age || !userData.state) {
+        alert("Por favor completa todos los campos.");
+        return;
+    }
     
     document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-quiz').style.display = 'block';
     renderQuestion();
-};
+});
 
 function renderQuestion() {
     const q = questions[currentIdx];
@@ -44,11 +49,12 @@ function renderQuestion() {
     document.getElementById('progress').style.width = `${((currentIdx+1)/5)*100}%`;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
+    
     q.opts.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = "opt-btn";
         btn.innerText = opt;
-        btn.onclick = () => handleAnswer(q.pts[i]);
+        btn.addEventListener('click', () => handleAnswer(q.pts[i]));
         container.appendChild(btn);
     });
 }
@@ -83,11 +89,12 @@ async function finishQuiz() {
             diagnosis: diag,
             timestamp: new Date()
         });
-    } catch (e) { console.error("Error al guardar:", e); }
+    } catch (e) { console.error("Error Firebase:", e); }
 }
 
-window.sendEmail = () => {
+document.getElementById('btn-email-send').addEventListener('click', () => {
+    const diag = document.getElementById('result-diagnosis').innerText;
     const subject = `Resultado SHIM: ${userData.name}`;
-    const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${document.getElementById('result-diagnosis').innerText}`;
+    const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${diag}`;
     window.location.href = `mailto:cuestionarios@uroandres.com?subject=${subject}&body=${body}`;
-};
+});

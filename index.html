@@ -16,13 +16,16 @@
             <div class="form-group">
                 <input type="text" id="name" placeholder="Nombre completo" required>
                 <input type="number" id="age" placeholder="Edad" required>
-                <input type="text" id="state" placeholder="Estado (ej. Nuevo León)" required>
-                <button onclick="startQuiz()">Comenzar</button>
+                <select id="state" required>
+                    <option value="" disabled selected>Selecciona tu estado</option>
+                    <option value="Querétaro">Querétaro</option><option value="Nuevo León">Nuevo León</option><option value="Aguascalientes">Aguascalientes</option><option value="Baja California">Baja California</option><option value="Baja California Sur">Baja California Sur</option><option value="Campeche">Campeche</option><option value="Chiapas">Chiapas</option><option value="Chihuahua">Chihuahua</option><option value="Ciudad de México">Ciudad de México</option><option value="Coahuila">Coahuila</option><option value="Colima">Colima</option><option value="Durango">Durango</option><option value="Estado de México">Estado de México</option><option value="Guanajuato">Guanajuato</option><option value="Guerrero">Guerrero</option><option value="Hidalgo">Hidalgo</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option><option value="Morelos">Morelos</option><option value="Nayarit">Nayarit</option><option value="Oaxaca">Oaxaca</option><option value="Puebla">Puebla</option><option value="Quintana Roo">Quintana Roo</option><option value="San Luis Potosí">San Luis Potosí</option><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Tabasco">Tabasco</option><option value="Tamaulipas">Tamaulipas</option><option value="Tlaxcala">Tlaxcala</option><option value="Veracruz">Veracruz</option><option value="Yucatán">Yucatán</option><option value="Zacatecas">Zacatecas</option><option value="Otro">Otro</option>
+                </select>
+                <button id="btn-start">Comenzar</button>
             </div>
         </section>
 
         <section id="screen-quiz" style="display:none;">
-            <div class="progress-bar"><div id="progress" style="width: 20%;"></div></div>
+            <div class="progress-bar"><div id="progress"></div></div>
             <h3 id="question-text"></h3>
             <div id="options-container"></div>
         </section>
@@ -33,8 +36,7 @@
                 <h1 id="result-score">0</h1>
                 <p id="result-diagnosis"></p>
             </div>
-            <p class="disclaimer">Estos resultados han sido documentados para su revisión médica.</p>
-            <button class="btn-email" onclick="sendEmail()">Enviar resultados a Dr. Andrés</button>
+            <button class="btn-email" id="btn-email-send">Enviar resultados a Dr. Andrés</button>
         </section>
     </div>
     <script type="module" src="app.js"></script>
