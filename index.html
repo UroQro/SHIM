@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIM - Dr. Andrés González</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .form-group { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        input, select, button { 
+            width: 100%; 
+            height: 50px; 
+            padding: 0 15px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            border: 1px solid #ccc;
+            display: block;
+        }
+        .btn-primary { background: #2c3e50; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-success { background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .opt-btn { background: #f8f9fa; margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid #ddd; text-align: center; }
+        .opt-btn:hover { background: #3498db; color: white; }
+        .progress-bar { background: #eee; height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        #progress { background: #3498db; height: 100%; width: 0%; transition: 0.3s; }
+        .result-box { margin: 20px 0; padding: 20px; background: #e3f2fd; border-radius: 10px; }
+        h1 { font-size: 24px; color: #333; }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <section id="screen-register">
+            <h1>Cuestionario SHIM</h1>
+            <p style="color: #666; margin-bottom: 20px;">Dr. Andrés González de Rosenzweig</p>
+            <div class="form-group">
+                <input type="text" id="name" placeholder="Nombre completo">
+                <input type="number" id="age" placeholder="Edad">
+                <select id="state">
+                    <option value="" disabled selected>Selecciona tu estado</option>
+                    <option value="Querétaro">Querétaro</option><option value="Nuevo León">Nuevo León</option><option value="Aguascalientes">Aguascalientes</option><option value="Baja California">Baja California</option><option value="Baja California Sur">Baja California Sur</option><option value="Campeche">Campeche</option><option value="Chiapas">Chiapas</option><option value="Chihuahua">Chihuahua</option><option value="Ciudad de México">Ciudad de México</option><option value="Coahuila">Coahuila</option><option value="Colima">Colima</option><option value="Durango">Durango</option><option value="Estado de México">Estado de México</option><option value="Guanajuato">Guanajuato</option><option value="Guerrero">Guerrero</option><option value="Hidalgo">Hidalgo</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option><option value="Morelos">Morelos</option><option value="Nayarit">Nayarit</option><option value="Oaxaca">Oaxaca</option><option value="Puebla">Puebla</option><option value="Quintana Roo">Quintana Roo</option><option value="San Luis Potosí">San Luis Potosí</option><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Tabasco">Tabasco</option><option value="Tamaulipas">Tamaulipas</option><option value="Tlaxcala">Tlaxcala</option><option value="Veracruz">Veracruz</option><option value="Yucatán">Yucatán</option><option value="Zacatecas">Zacatecas</option><option value="Otro">Otro</option>
+                </select>
+                <button type="button" id="btn-start" class="btn-primary" onclick="iniciarCuestionario()">Comenzar</button>
+            </div>
+        </section>
+
+        <section id="screen-quiz" style="display:none;">
+            <div class="progress-bar"><div id="progress"></div></div>
+            <h3 id="question-text" style="min-height: 80px; margin-bottom:20px;"></h3>
+            <div id="options-container"></div>
+        </section>
+
+        <section id="screen-results" style="display:none;">
+            <h2>Tu Resultado</h2>
+            <div class="result-box">
+                <h1 id="result-score">0</h1>
+                <p id="result-diagnosis"></p>
+            </div>
+            <button id="btn-email-send" class="btn-success" onclick="enviarMail()">Enviar resultados a Dr. Andrés</button>
+        </section>
+    </div>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyAY8ma-8Pd6r9i0Q1vEtkt4ozZN9kUj9W0",
+            authDomain: "shim-50b83.firebaseapp.com",
+            projectId: "shim-50b83",
+            storageBucket: "shim-50b83.firebasestorage.app",
+            messagingSenderId: "772097686009",
+            appId: "1:772097686009:web:92afd4017195273e5d6528"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const questions = [
+            { q: "¿Cómo califica su confianza en poder lograr y mantener una erección?", opts: ["Muy baja", "Baja", "Moderada", "Alta", "Muy alta"], pts: },
+            { q: "Cuando tuvo erecciones con estimulación sexual, ¿con qué frecuencia fueron lo suficientemente firmes para la penetración?", opts: ["Casi nunca", "Pocas veces", "A veces", "Muchas veces", "Casi siempre"], pts: },
+            { q: "Durante el coito, ¿con qué frecuencia pudo mantener su erección después de haber penetrado a su pareja?", opts: ["Casi nunca", "Pocas veces", "A veces", "Muchas veces", "Casi siempre"], pts: },
+            { q: "Durante el coito, ¿qué tan difícil fue mantener su erección hasta terminar el acto sexual?", opts: ["Extremadamente difícil", "Muy difícil", "Difícil", "Poco difícil", "Nada difícil"], pts: },
+            { q: "Cuando intentó el coito, ¿con qué frecuencia fue satisfactorio para usted?", opts: ["Casi nunca", "Pocas veces", "A veces", "Muchas veces", "Casi siempre"], pts: }
+        ];
+
+        let currentIdx = 0;
+        let totalScore = 0;
+        let userData = {};
+
+        function iniciarCuestionario() {
+            userData.name = document.getElementById('name').value;
+            userData.age = document.getElementById('age').value;
+            userData.state = document.getElementById('state').value;
+
+            if(!userData.name || !userData.age || !userData.state) {
+                alert("Por favor llena todos los campos.");
+                return;
+            }
+
+            document.getElementById('screen-register').style.display = 'none';
+            document.getElementById('screen-quiz').style.display = 'block';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('progress').style.width = ((currentIdx + 1) / 5 * 100) + '%';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.opts.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "opt-btn";
+                btn.innerText = opt;
+                btn.onclick = function() { handleAnswer(q.pts[i]); };
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(pts) {
+            totalScore += pts;
+            currentIdx++;
+            if(currentIdx < questions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            let diag = "";
+            if(totalScore <= 7) diag = "Disfunción Grave";
+            else if(totalScore <= 11) diag = "Disfunción Moderada";
+            else if(totalScore <= 16) diag = "Disfunción Leve a Moderada";
+            else if(totalScore <= 21) diag = "Disfunción Leve";
+            else diag = "Sin Disfunción Eréctil";
+
+            document.getElementById('screen-quiz').style.display = 'none';
+            document.getElementById('screen-results').style.display = 'block';
+            document.getElementById('result-score').innerText = totalScore;
+            document.getElementById('result-diagnosis').innerText = diag;
+
+            // Firebase Guardado
+            db.collection("respuestas_shim").add({
+                ...userData,
+                score: totalScore,
+                diagnosis: diag,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(e => console.error("Error Firebase:", e));
+        }
+
+        function enviarMail() {
+            const diag = document.getElementById('result-diagnosis').innerText;
+            const subject = `Resultado SHIM: ${userData.name}`;
+            const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${diag}`;
+            window.location.href = `mailto:cuestionarios@uroandres.com?subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>
