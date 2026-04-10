@@ -27,20 +27,25 @@ let currentIdx = 0;
 let totalScore = 0;
 let userData = {};
 
-// Arreglando el error del botón: Usamos EventListeners en lugar de onclick en el HTML
-document.getElementById('btn-start').addEventListener('click', () => {
-    userData.name = document.getElementById('name').value;
-    userData.age = document.getElementById('age').value;
-    userData.state = document.getElementById('state').value;
-    
-    if(!userData.name || !userData.age || !userData.state) {
-        alert("Por favor completa todos los campos.");
-        return;
+// Inicialización de eventos una vez que el DOM está listo
+document.addEventListener('DOMContentLoaded', () => {
+    const btnStart = document.getElementById('btn-start');
+    if(btnStart) {
+        btnStart.onclick = () => {
+            userData.name = document.getElementById('name').value;
+            userData.age = document.getElementById('age').value;
+            userData.state = document.getElementById('state').value;
+            
+            if(!userData.name || !userData.age || !userData.state) {
+                alert("Andrés, faltan datos por llenar.");
+                return;
+            }
+            
+            document.getElementById('screen-register').style.display = 'none';
+            document.getElementById('screen-quiz').style.display = 'block';
+            renderQuestion();
+        };
     }
-    
-    document.getElementById('screen-register').style.display = 'none';
-    document.getElementById('screen-quiz').style.display = 'block';
-    renderQuestion();
 });
 
 function renderQuestion() {
@@ -54,7 +59,7 @@ function renderQuestion() {
         const btn = document.createElement('button');
         btn.className = "opt-btn";
         btn.innerText = opt;
-        btn.addEventListener('click', () => handleAnswer(q.pts[i]));
+        btn.onclick = () => handleAnswer(q.pts[i]);
         container.appendChild(btn);
     });
 }
@@ -90,11 +95,10 @@ async function finishQuiz() {
             timestamp: new Date()
         });
     } catch (e) { console.error("Error Firebase:", e); }
-}
 
-document.getElementById('btn-email-send').addEventListener('click', () => {
-    const diag = document.getElementById('result-diagnosis').innerText;
-    const subject = `Resultado SHIM: ${userData.name}`;
-    const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${diag}`;
-    window.location.href = `mailto:cuestionarios@uroandres.com?subject=${subject}&body=${body}`;
-});
+    document.getElementById('btn-email-send').onclick = () => {
+        const subject = `Resultado SHIM: ${userData.name}`;
+        const body = `Nombre: ${userData.name}%0AEdad: ${userData.age}%0AEstado: ${userData.state}%0APuntaje SHIM: ${totalScore}%0ADiagnóstico: ${diag}`;
+        window.location.href = `mailto:cuestionarios@uroandres.com?subject=${subject}&body=${body}`;
+    };
+}
